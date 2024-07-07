@@ -40,7 +40,7 @@ export function Usuarios() {
     id_rol: "",
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const [usuariosPerPage] = useState(3);
+  const [usuariosPerPage] = useState(3); // Define cuántos usuarios mostrar por página
   const [search, setSearch] = useState("");
   const [formErrors, setFormErrors] = useState({});
 
@@ -185,21 +185,24 @@ export function Usuarios() {
     setSearch(e.target.value);
   };
 
-  const handleViewDetails = (user) => {
-    setSelectedUser(user);
-    setDetailsOpen(true);
-  };
+  // Función para cambiar de página
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  // Calcular índices de usuarios actuales a mostrar
   const indexOfLastUsuario = currentPage * usuariosPerPage;
   const indexOfFirstUsuario = indexOfLastUsuario - usuariosPerPage;
   const currentUsuarios = filteredUsuarios.slice(indexOfFirstUsuario, indexOfLastUsuario);
 
+  // Array de números de página
   const pageNumbers = [];
   for (let i = 1; i <= Math.ceil(filteredUsuarios.length / usuariosPerPage); i++) {
     pageNumbers.push(i);
   }
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const handleViewDetails = (user) => {
+    setSelectedUser(user);
+    setDetailsOpen(true);
+  };
 
   return (
     <>
@@ -249,7 +252,7 @@ export function Usuarios() {
                       <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">{user.id_rol}</td>
                       <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
                         <div className="flex space-x-1">
-                          <IconButton  className="btnedit" size="sm" onClick={() => handleEdit(user)}>
+                          <IconButton className="btnedit" size="sm" onClick={() => handleEdit(user)}>
                             <PencilIcon className="h-4 w-4" />
                           </IconButton>
                           <IconButton className="cancelar" size="sm" onClick={() => handleDelete(user)}>
@@ -265,15 +268,17 @@ export function Usuarios() {
                 </tbody>
               </table>
             </div>
-            <nav className="mt-4">
-              <ul className="flex justify-center">
-                {pageNumbers.map((number) => (
-                  <li key={number} className="relative block mx-1 h-8 w-8 border border-blue-gray-100 bg-white text-sm leading-8 text-center hover:bg-blue-gray-50">
-                    <a onClick={() => paginate(number)} className="relative z-10 block px-2 py-1">{number}</a>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+            <div className="flex justify-center mt-4">
+              {pageNumbers.map((number) => (
+                <Button
+                  key={number}
+                  className={`pagination ${currentPage === number ? "page-active" : ""}`}
+                  onClick={() => paginate(number)}
+                >
+                  {number}
+                </Button>
+              ))}
+            </div>
           </div>
         </CardBody>
       </Card>
