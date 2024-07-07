@@ -166,7 +166,7 @@ export function FichasTecnicas() {
 
   return (
     <>
-      <div className="relative mt-8 h-72 w-full overflow-hidden rounded-xl bg-[url('/img/background-image.png')] bg-cover bg-center">
+      <div className="relative mt-2 h-32 w-full overflow-hidden rounded-xl bg-[url('/img/background-image.png')] bg-cover bg-center">
         <div className="absolute inset-0 h-full w-full bg-gray-900/75" />
       </div>
       <Card className="mx-3 -mt-16 mb-6 lg:mx-4 border border-blue-gray-100">
@@ -186,28 +186,45 @@ export function FichasTecnicas() {
             <Typography variant="h6" color="blue-gray" className="mb-4">
               Lista de Fichas Técnicas
             </Typography>
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {currentFichas.map((ficha) => (
-                <Card key={ficha.id_ficha} className="p-4">
-                  <Typography variant="h6" color="blue-gray">
-                    {ficha.descripcion}
-                  </Typography>
-                  <Typography color="blue-gray">
-                    Insumos: {ficha.insumos}
-                  </Typography>
-                  <div className="mt-4 flex gap-2">
-                    <IconButton color="blue" onClick={() => handleEdit(ficha)}>
-                      <PencilIcon className="h-5 w-5" />
-                    </IconButton>
-                    <IconButton color="red" onClick={() => handleDelete(ficha)}>
-                      <TrashIcon className="h-5 w-5" />
-                    </IconButton>
-                    <IconButton color="blue-gray" onClick={() => handleViewDetails(ficha)}>
-                      <EyeIcon className="h-5 w-5" />
-                    </IconButton>
-                  </div>
-                </Card>
-              ))}
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Descripción
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Insumos
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Acciones
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {currentFichas.map((ficha) => (
+                    <tr key={ficha.id_ficha}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{ficha.descripcion}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{ficha.insumos}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <IconButton color="blue" onClick={() => handleEdit(ficha)}>
+                          <PencilIcon className="h-5 w-5" />
+                        </IconButton>
+                        <IconButton color="red" onClick={() => handleDelete(ficha)}>
+                          <TrashIcon className="h-5 w-5" />
+                        </IconButton>
+                        <IconButton color="blue-gray" onClick={() => handleViewDetails(ficha)}>
+                          <EyeIcon className="h-5 w-5" />
+                        </IconButton>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
             <div className="mt-6 flex justify-center">
               <Pagination

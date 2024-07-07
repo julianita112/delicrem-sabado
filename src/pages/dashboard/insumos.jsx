@@ -28,6 +28,7 @@ export function Insumos() {
   const [currentPage, setCurrentPage] = useState(1);
   const [insumosPerPage] = useState(6);
   const [search, setSearch] = useState("");
+  const [errors, setErrors] = useState({}); // Estado para los mensajes de error
 
   useEffect(() => {
     fetchInsumos();
@@ -54,13 +55,19 @@ export function Insumos() {
     setFilteredInsumos(filtered);
   };
 
-  const handleOpen = () => setOpen(!open);
-  const handleDetailsOpen = () => setDetailsOpen(!detailsOpen);
+  const handleOpen = () => {
+    setOpen(!open);
+    setErrors({}); // Limpiar los errores al abrir el modal
+  };
+
+  const handleDetailsOpen = () => {
+    setDetailsOpen(!detailsOpen);
+  };
 
   const handleEdit = (insumo) => {
     setSelectedInsumo(insumo);
     setEditMode(true);
-    handleOpen();
+    setOpen(true);
   };
 
   const handleCreate = () => {
@@ -69,7 +76,7 @@ export function Insumos() {
       stock_actual: 0,
     });
     setEditMode(false);
-    handleOpen();
+    setOpen(true);
   };
 
   const handleDelete = async (insumo) => {
@@ -88,7 +95,21 @@ export function Insumos() {
       try {
         await axios.delete(`http://localhost:3000/api/insumos/${insumo.id_insumo}`);
         fetchInsumos(); // Refrescar la lista de insumos
-        Swal.fire('¡Eliminado!', 'El insumo ha sido eliminado.', 'success');
+        const Toast = Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+          }
+        });
+        Toast.fire({
+          icon: "success",
+          title: "Insumo eliminado exitosamente"
+        });
       } catch (error) {
         console.error("Error deleting insumo:", error);
         Swal.fire('Error', 'Hubo un problema al eliminar el insumo.', 'error');
@@ -98,13 +119,60 @@ export function Insumos() {
 
   const handleSave = async () => {
     try {
+      // Validación antes de guardar
+      const regex = /^[a-zA-ZáéíóúüÁÉÍÓÚÜ\s]+$/;
+      const errors = {};
+
+      if (!selectedInsumo.nombre.trim()) {
+        errors.nombre = "El nombre es requerido";
+      } else if (!regex.test(selectedInsumo.nombre)) {
+        errors.nombre = "El nombre solo puede contener letras y espacios";
+      }
+
+      // Mostrar errores si existen
+      if (Object.keys(errors).length > 0) {
+        setErrors(errors);
+        return; // Salir de la función si hay errores
+      }
+
       if (editMode) {
         await axios.put(`http://localhost:3000/api/insumos/${selectedInsumo.id_insumo}`, selectedInsumo);
+        setOpen(false); // Cerrar el modal después de guardar
+        const Toast = Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+          }
+        });
+        Toast.fire({
+          icon: "success",
+          title: "Insumo editado exitosamente"
+        });
       } else {
         await axios.post("http://localhost:3000/api/insumos", selectedInsumo);
+        fetchInsumos(); // Refrescar la lista de insumos
+        setOpen(false); // Cerrar el modal después de guardar
+        const Toast = Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+          }
+        });
+        Toast.fire({
+          icon: "success",
+          title: "Insumo creado exitosamente"
+        });
       }
-      fetchInsumos(); // Refrescar la lista de insumos
-      handleOpen();
     } catch (error) {
       console.error("Error saving insumo:", error);
       Swal.fire('Error', 'Hubo un problema al guardar el insumo.', 'error');
@@ -114,6 +182,7 @@ export function Insumos() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setSelectedInsumo({ ...selectedInsumo, [name]: value });
+    setErrors({ ...errors, [name]: "" }); // Limpiar el mensaje de error cuando se cambia el valor del campo
   };
 
   const handleSearchChange = (e) => {
@@ -122,7 +191,7 @@ export function Insumos() {
 
   const handleViewDetails = (insumo) => {
     setSelectedInsumo(insumo);
-    handleDetailsOpen();
+    setDetailsOpen(true);
   };
 
   // Obtener insumos actuales
@@ -135,12 +204,12 @@ export function Insumos() {
 
   return (
     <>
-      <div className="relative mt-8 h-72 w-full overflow-hidden rounded-xl bg-[url('/img/background-image.png')] bg-cover bg-center">
+      <div className="relative mt-2 h-32 w-full overflow-hidden rounded-xl bg-[url('/img/background-image.png')] bg-cover bg-center">
         <div className="absolute inset-0 h-full w-full bg-gray-900/75" />
       </div>
       <Card className="mx-3 -mt-16 mb-6 lg:mx-4 border border-blue-gray-100">
         <CardBody className="p-4">
-          <Button onClick={handleCreate} className="mb-6" color="green" startIcon={<PlusIcon />}>
+          <Button onClick={handleCreate}  className="btnagregar" color="green" startIcon={<PlusIcon />}>
             Crear Insumo
           </Button>
           <div className="mb-6">
@@ -165,13 +234,13 @@ export function Insumos() {
                     Stock Actual: {insumo.stock_actual}
                   </Typography>
                   <div className="mt-4 flex gap-2">
-                    <IconButton color="blue" onClick={() => handleEdit(insumo)}>
+                    <IconButton className="btnedit" size="sm" onClick={() => handleEdit(insumo)}>
                       <PencilIcon className="h-5 w-5" />
                     </IconButton>
-                    <IconButton color="red" onClick={() => handleDelete(insumo)}>
-                      <TrashIcon className="h-5 w-5" />
+                    <IconButton className="btncancelarinsumo" size="sm" color="red" onClick={() => handleDelete(insumo)}>
+                      <TrashIcon className="h-4 w-4" />
                     </IconButton>
-                    <IconButton color="blue-gray" onClick={() => handleViewDetails(insumo)}>
+                    <IconButton className="btnvisualizar" size="sm" onClick={() => handleViewDetails(insumo)}>
                       <EyeIcon className="h-5 w-5" />
                     </IconButton>
                   </div>
@@ -192,51 +261,64 @@ export function Insumos() {
         <DialogHeader>{editMode ? "Editar Insumo" : "Crear Insumo"}</DialogHeader>
         <DialogBody divider>
           <Input
-            label="Nombre"
+            label="Nombre de insumo"
             name="nombre"
             value={selectedInsumo.nombre}
             onChange={handleChange}
+            required // Añadir la propiedad required para campo obligatorio
+            error={errors.nombre} // Mostrar el error debajo del input si existe
           />
+          {errors.nombre && <Typography color="red">{errors.nombre}</Typography>}
         </DialogBody>
         <DialogFooter>
-          <Button variant="text" color="red" onClick={handleOpen}>
+          <Button variant="text" className="btncancelarinsumom" color="red" onClick={handleOpen}>
             Cancelar
           </Button>
-          <Button variant="gradient" color="green" onClick={handleSave}>
+          <Button variant="gradient" className="btnagregar" color="green" onClick={handleSave}>
             {editMode ? "Guardar Cambios" : "Crear Insumo"}
           </Button>
         </DialogFooter>
       </Dialog>
-      <Dialog open={detailsOpen} handler={handleDetailsOpen}>
-        <DialogHeader>Detalles del Insumo</DialogHeader>
-        <DialogBody divider>
-          <table className="min-w-full">
-            <tbody>
-              <tr>
-                <td className="font-semibold">Nombre:</td>
-                <td>{selectedInsumo.nombre}</td>
-              </tr>
-              <tr>
-                <td className="font-semibold">Stock Actual:</td>
-                <td>{selectedInsumo.stock_actual}</td>
-              </tr>
-              <tr>
-                <td className="font-semibold">Creado:</td>
-                <td>{selectedInsumo.createdAt ? new Date(selectedInsumo.createdAt).toLocaleString() : 'N/A'}</td>
-              </tr>
-              <tr>
-                <td className="font-semibold">Actualizado:</td>
-                <td>{selectedInsumo.updatedAt ? new Date(selectedInsumo.updatedAt).toLocaleString() : 'N/A'}</td>
-              </tr>
-            </tbody>
-          </table>
-        </DialogBody>
-        <DialogFooter>
-          <Button variant="gradient" color="blue-gray" onClick={handleDetailsOpen}>
-            Cerrar
-          </Button>
-        </DialogFooter>
-      </Dialog>
+      <Dialog open={detailsOpen} handler={handleDetailsOpen} className="details-modal">
+  <DialogHeader>Detalles del Insumo</DialogHeader>
+  <DialogBody>
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse border border-black">
+        <thead className="bg-gradient-to-r from-pink-200 to-pink-500 text-white">
+          <tr>
+            <th className="p-2 border-b border-black">Campo</th>
+            <th className="p-2 border-b border-black">Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td className="p-2 border-b border-gray-200 font-semibold">Nombre</td>
+            <td className="p-2 border-b border-gray-200">{selectedInsumo.nombre}</td>
+          </tr>
+          <tr>
+            <td className="p-2 border-b border-gray-200 font-semibold">Stock Actual</td>
+            <td className="p-2 border-b border-gray-200">{selectedInsumo.stock_actual}</td>
+          </tr>
+          <tr>
+            <td className="p-2 border-b border-gray-200 font-semibold">Creado</td>
+            <td className="p-2 border-b border-gray-200">{selectedInsumo.createdAt ? new Date(selectedInsumo.createdAt).toLocaleString() : 'N/A'}</td>
+          </tr>
+          <tr>
+            <td className="p-2 border-b border-gray-200 font-semibold">Actualizado</td>
+            <td className="p-2 border-b border-gray-200">{selectedInsumo.updatedAt ? new Date(selectedInsumo.updatedAt).toLocaleString() : 'N/A'}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </DialogBody>
+  <DialogFooter>
+    <Button variant="gradient" className="btncancelarm"
+ onClick={handleDetailsOpen}>
+      Cerrar
+    </Button>
+  </DialogFooter>
+</Dialog>
+
     </>
   );
 }
@@ -251,12 +333,13 @@ const Pagination = ({ insumosPerPage, totalInsumos, paginate }) => {
 
   return (
     <nav>
-      <ul className="pagination flex space-x-2">
+      <ul className="flex justify-center items-center space-x-2">
         {pageNumbers.map((number) => (
-          <li key={number} className="page-item">
+          <li key={number} 
+          className="pagination">
             <Button
               onClick={() => paginate(number)}
-              className="page-link"
+              className="pagination"
             >
               {number}
             </Button>

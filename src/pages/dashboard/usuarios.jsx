@@ -161,7 +161,7 @@ export function Usuarios() {
     const errors = {};
 
     if (!user.nombre || user.nombre.length < 3) {
-      errors.nombre = 'Nombre debe contener al menos 3 letras y no debe incluir números ni caracteres especiales.';
+      errors.nombre = 'El nombre debe contener al menos 3 letras y no debe incluir números ni caracteres especiales.';
     }
 
     if (!user.email || !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(user.email)) {
@@ -169,7 +169,7 @@ export function Usuarios() {
     }
 
     if (!user.password || user.password.length < 5) {
-      errors.password = 'La contraseña debe tener al menos 5 caracteres.';
+      errors.password = 'La contraseña debe tener al menos 5 cáracteres.';
     }
 
     setFormErrors(errors);
@@ -206,7 +206,7 @@ export function Usuarios() {
 
   return (
     <>
-      <div className="relative mt-2 h-20 w-full overflow-hidden rounded-xl bg-[url('/img/background-image.png')] bg-cover bg-center">
+      <div className="relative mt-2 h-32 w-full overflow-hidden rounded-xl bg-[url('/img/background-image.png')] bg-cover bg-center">
         <div className="absolute inset-0 h-full w-full bg-gray-900/75" />
       </div>
       <Card className="mx-3 -mt-16 mb-6 lg:mx-4 border border-blue-gray-100">
@@ -258,7 +258,7 @@ export function Usuarios() {
                           <IconButton className="cancelar" size="sm" onClick={() => handleDelete(user)}>
                             <TrashIcon className="h-4 w-4" />
                           </IconButton>
-                          <IconButton color="light-blue-500" size="sm" onClick={() => handleViewDetails(user)}>
+                          <IconButton className="btnvisualizar" size="sm" onClick={() => handleViewDetails(user)}>
                             <EyeIcon className="h-4 w-4" />
                           </IconButton>
                         </div>
@@ -268,83 +268,100 @@ export function Usuarios() {
                 </tbody>
               </table>
             </div>
-            <div className="flex justify-center mt-4">
-              {pageNumbers.map((number) => (
-                <Button
-                  key={number}
-                  className={`pagination ${currentPage === number ? "page-active" : ""}`}
-                  onClick={() => paginate(number)}
-                >
-                  {number}
-                </Button>
-              ))}
-            </div>
+          </div>
+          <div className="flex justify-center items-center space-x-2">
+            {pageNumbers.map(number => (
+              <Button
+                key={number}
+                onClick={() => paginate(number)}
+                className={`pagination ${number === currentPage ? 'active' : ''}`}
+                color="blue-gray"
+                size="sm"
+              >
+                {number}
+              </Button>
+            ))}
           </div>
         </CardBody>
       </Card>
 
-      <Dialog open={open} handler={handleOpen} className="custom-modal">
-        <DialogHeader>{editMode ? 'Editar Usuario' : 'Crear Nuevo Usuario'}</DialogHeader>
-        <DialogBody>
-          <div className="flex flex-col space-y-4">
-            <Input
-              type="text"
-              id="nombre"
-              name="nombre"
-              placeholder="Nombre"
-              value={selectedUser.nombre}
-              onChange={handleChange}
-              className={`custom-input ${formErrors.nombre && 'input-error'}`}
-              pattern="[A-Za-záéíóúÁÉÍÓÚ]{3,}"
-              title="Debe contener al menos 3 letras y no debe incluir números ni caracteres especiales."
-              required
-            />
-            {formErrors.nombre && <p className="text-red-500 text-xs">{formErrors.nombre}</p>}
-            <Input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="Email"
-              value={selectedUser.email}
-              onChange={handleChange}
-              className={`custom-input ${formErrors.email && 'input-error'}`}
-              pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-              title="Ingrese un formato de correo electrónico válido."
-              required
-            />
-            {formErrors.email && <p className="text-red-500 text-xs">{formErrors.email}</p>}
-            <Input
-              type="password"
-              id="password"
-              name="password"
-              placeholder="Password"
-              value={selectedUser.password}
-              onChange={handleChange}
-              className={`custom-input ${formErrors.password && 'input-error'}`}
-              minLength="5"
-              title="La contraseña debe tener al menos 5 caracteres."
-              required
-            />
-            {formErrors.password && <p className="text-red-500 text-xs">{formErrors.password}</p>}
-            <Input
-              type="text"
-              name="id_rol"
-              placeholder="ID Rol"
-              value={selectedUser.id_rol}
-              onChange={handleChange}
-              className="custom-input"
-            />
-          </div>
-        </DialogBody>
-        <DialogFooter>
-          <Button variant="text" className="cancelar" onClick={handleOpen}>
-            Cancelar
-          </Button>
-          <Button className="btnagregarm" color="green" onClick={handleSave}>
-            {editMode ? "Guardar Cambios" : "Crear"}
-          </Button>
-        </DialogFooter>
-      </Dialog>
+      {/* Modal de Editar/Crear Usuario */}
+    
+<Dialog open={open} handler={handleOpen} className="custom-modal">
+  <DialogHeader>{editMode ? 'Editar Usuario' : 'Crear Nuevo Usuario'}</DialogHeader>
+  <DialogBody className="custom-modal-body">
+    {/* Contenido del cuerpo del modal */}
+    <div className="flex flex-col space-y-1"> {/* Espacio vertical entre los elementos */}
+      <div className="mb-2">
+        
+        <Input
+          type="text"
+          id="nombre"
+          name="nombre"
+          label="Nombre de Usuario"
+          value={selectedUser.nombre}
+          onChange={handleChange}
+          className={`custom-input ${formErrors.nombre && 'input-error'}`}
+          title="Debe contener al menos 3 letras y no debe incluir números ni caracteres especiales."
+          required
+        />
+        {formErrors.nombre && <p className="text-red-500 text-xs">{formErrors.nombre}</p>}
+      </div>
+      <div className="mb-4">
+        
+        <Input
+          type="email"
+          id="email"
+          name="email"
+          label="Correo Electrónico"
+          value={selectedUser.email}
+          onChange={handleChange}
+          className={`custom-input ${formErrors.email && 'input-error'}`}
+          required
+        />
+        {formErrors.email && <p className="text-red-500 text-xs">{formErrors.email}</p>}
+      </div>
+      <div className="mb-4">
+        
+        <Input
+          type="password"
+          id="password"
+          name="password"
+          label="Contraseña"
+          value={selectedUser.password}
+          onChange={handleChange}
+          className={`custom-input ${formErrors.password && 'input-error'}`}
+          minLength={5}
+          required
+        />
+        {formErrors.password && <p className="text-red-500 text-xs">{formErrors.password}</p>}
+      </div>
+      <div className="mb-2">
+        <label htmlFor="id_rol" className="text-xs text-gray-500">ID Rol</label>
+        <Input
+          type="text"
+          id="id_rol"
+          name="id_rol"
+          placeholder=""
+          value={selectedUser.id_rol}
+          onChange={handleChange}
+          className="custom-input"
+          required
+        />
+      </div>
+    </div>
+  </DialogBody>
+  <DialogFooter className="dialog-footer">
+    <Button variant="text" className="cancelar" onClick={handleOpen}>
+      Cancelar
+    </Button>
+    <Button className="btnagregarm" color="green" onClick={handleSave}>
+      {editMode ? "Guardar Cambios" : "Crear"}
+    </Button>
+  </DialogFooter>
+</Dialog>
+
+
 
       <Dialog open={detailsOpen} handler={handleDetailsOpen} className="details-modal">
         <DialogHeader>Detalles del Usuario</DialogHeader>
@@ -387,3 +404,5 @@ export function Usuarios() {
     </>
   );
 }
+
+

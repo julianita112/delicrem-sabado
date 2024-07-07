@@ -145,7 +145,7 @@ export function ProductoTerminado() {
 
   return (
     <>
-      <div className="relative mt-8 h-72 w-full overflow-hidden rounded-xl bg-[url('/img/background-image.png')] bg-cover bg-center">
+      <div className="relative mt-2 h-32 w-full overflow-hidden rounded-xl bg-[url('/img/background-image.png')] bg-cover bg-center">
         <div className="absolute inset-0 h-full w-full bg-gray-900/75" />
       </div>
       <Card className="mx-3 -mt-16 mb-6 lg:mx-4 border border-blue-gray-100">
@@ -165,34 +165,41 @@ export function ProductoTerminado() {
             <Typography variant="h6" color="blue-gray" className="mb-4">
               Lista de Productos
             </Typography>
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {currentProductos.map((producto) => (
-                <Card key={producto.id_producto} className="p-4">
-                  <Typography variant="h6" color="blue-gray">
-                    {producto.nombre}
-                  </Typography>
-                  <Typography color="blue-gray">
-                    Descripción: {producto.descripcion}
-                  </Typography>
-                  <Typography color="blue-gray">
-                    Precio: {producto.precio}
-                  </Typography>
-                  <Typography color="blue-gray">
-                    Stock: {producto.stock}
-                  </Typography>
-                  <div className="mt-4 flex gap-2">
-                    <IconButton color="blue" onClick={() => handleEdit(producto)}>
-                      <PencilIcon className="h-5 w-5" />
-                    </IconButton>
-                    <IconButton color="red" onClick={() => handleDelete(producto)}>
-                      <TrashIcon className="h-5 w-5" />
-                    </IconButton>
-                    <IconButton color="blue-gray" onClick={() => handleViewDetails(producto)}>
-                      <EyeIcon className="h-5 w-5" />
-                    </IconButton>
-                  </div>
-                </Card>
-              ))}
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                    <th scope="col" className="relative px-6 py-3">
+                      <span className="sr-only">Editar</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {currentProductos.map((producto) => (
+                    <tr key={producto.id_producto}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{producto.nombre}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{producto.descripcion}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{producto.precio}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{producto.stock}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <IconButton color="blue" onClick={() => handleEdit(producto)}>
+                          <PencilIcon className="h-5 w-5" />
+                        </IconButton>
+                        <IconButton color="red" onClick={() => handleDelete(producto)}>
+                          <TrashIcon className="h-5 w-5" />
+                        </IconButton>
+                        <IconButton color="blue-gray" onClick={() => handleViewDetails(producto)}>
+                          <EyeIcon className="h-5 w-5" />
+                        </IconButton>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
             <div className="mt-6 flex justify-center">
               <Pagination
